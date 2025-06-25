@@ -1,0 +1,31 @@
+Let me give you a sample of the paths and files I intend to parse:
+
+---
+
+Data Type: Dyn Readgs
+gs://gdw-prod-data-maf-mhc/gcDataDropboxParquet/n69r/dyn_read/mv2-EBQW/step=MRJMPP/lot=3908151.0F1/session=XDFA_1744381568/read_point=0/cycle_group=A1_0_QLC_AP/EBQW_EBQW-39081510F1_8151-12-MRJMPP-XDFA_1744381568_grp-sect_blk-A1_cyc-0_cw-2399_pat-rko034_mode-MPIDCPIWL4Ko0_slice-0.parquet
+
+---
+
+Data Type: Sect
+gs://gdw-prod-data-maf-mhc/gcDataDropboxParquet/n69r/sect/mv2-EBQW/step=MCBAPP/lot=3910261.0R1/session=X99F_1744983663/read_point=0/cycle_group=AB1_1500_QLC_AP/EBQW_EBQW-39102610R1_0261-15-MCBAPP-X99F_1744983663_grp-sect_blk-AB1_cyc-0_cw-2399_pat-rko236_mode-MPIDCPIWL4Ko0_slice-0.parquet
+
+---
+
+Data Type: HRER
+gdw-prod-data-maf-mhc/gcDataDropboxParquet/n69r/hrer/mv2-EBQW/step=MCBAPP/lot=3910261.0S1/session=X98C_1744978430/read_point=0/cycle_group=BD2_100_SLC_AP
+
+---
+
+Data Type: RWB
+gs://gdw-prod-data-maf-mhc/gcDataDropboxParquet/n69r/rwb/mv2-EBQWPST/step=MCAH4PP/lot=3912321.0S1/session=XDJM_1746952333/read_point=0/cycle_group=BA1_0_SLC_AP/EBQWPST_EBQWPST-39123210S1_2321-16-MCAH4PP-XDJM_1746952333_grp-rwb_blk-BA1_cyc-0_cw-2399_pat-rko024_mode-NA_slice-0_daco-10_dacres-10.parquet
+
+---
+
+Data Type: TBERS
+gs://gdw-prod-data-maf-mhc/gcDataDropboxParquet/n69r/tbers/mv2-EBQW/step=MCBAPP/lot=3910261.0T1/session=XCBI_1745051344/read_point=0/cycle_group=BE1_10000_SLC_AP/EBQW_EBQW-39102610T1_0261-25-MCBAPP-XCBI_1745051344_grp-tbers_blk-BE1_cyc-0_cw-2399_pat-rko240_mode-mp_slice-0.parquet
+
+---
+
+Data Type: TPROG
+gs://gdw-prod-data-maf-mhc/gcDataDropboxParquet/n69r/tprog/mv2-EBQW/step=MCBDPP/lot=3910261.0R1/session=X99F_1745804967/read_point=0/cycle_group=AB3_1500_QLC_AP/EBQW_EBQW-39102610R1_0261-15-MCBDPP-X99F_1745804967_grp-tprog_blk-AB3_cyc-0_cw-2399_pat-rko236_mode-mp_slice-0.parquet
