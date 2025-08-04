@@ -2,17 +2,13 @@ import sys
 import os
 import re
 from datetime import datetime
+from tqdm import tqdm
 from typing import List, Dict, Any, Tuple, Set
 from google.cloud import storage
-from utilities.caching.sqlite_caching import SQLiteBaseCache
-
-# Optional: progress bar
-try:
-    from tqdm import tqdm
-except ImportError:
-    tqdm = lambda x: x
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utilities.caching.sqlite_caching import SQLiteBaseCache
+
 log_file_path = "error_log.txt"
 
 def extract_mode_from_filename(filename: str) -> str:
@@ -110,7 +106,7 @@ if __name__ == "__main__":
     cache = SQLiteBaseCache(db_path, table_name, schema)
 
     bucket = "gdw-prod-data-maf-mhc"
-    prefix = "gcDataDropboxParquet"
+    prefix = "gcDataDropboxParquet/*/dyn_read/mv2-EBQWPST"
 
     gcs_paths = list_gcs_parquet_files(bucket, prefix)
     refresh_cache(cache, gcs_paths)
