@@ -4,6 +4,8 @@ import os
 import pandas as pd
 import re
 import glob
+import subprocess
+import random
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -122,9 +124,9 @@ for step in df_rwb["step"].unique():
                         max_edge=30
                     
                     for edge in range(max_edge):
-                        create_agg_list.append(f"MIN(E{edge}) AS E{edge}")
+                        create_agg_list.append(f"MIN(E{int(edge)}) AS E{int(edge)}")
                         if edge / 2:
-                            create_agg_list.append(f"MIN(V{edge/2}) AS V{edge/2}")
+                            create_agg_list.append(f"MIN(V{int(edge/2)}) AS V{int(edge/2)}")
                     
 
                     context_rwb.append(
@@ -580,10 +582,10 @@ def plot_rwb_wrapper(df,file,output_path):
         plot_ESUMS(columns_to_stack, df, index_columns,file,output_path)
 
 # Set the maximum number of concurrent threads
-MAX_CONCURRENT_THREADS = 10
+MAX_CONCURRENT_THREADS = 5
 semaphore = threading.Semaphore(MAX_CONCURRENT_THREADS)
 
-def process_context(entry):
+def process_context(entry,lock):
     with semaphore:
         file_name = entry["file_name"]
         context = entry["context"]
@@ -591,13 +593,13 @@ def process_context(entry):
         logging.info(f"Thread started for: {file_name}")
         
         try:
-            # if "cwer" in file_name:
-            #     results = bq.run_template_query("cwer_rber_hrer.sql", context)
-            # else:
-            #     results = bq.run_template_query("rwb.sql", context)
+            if "cwer" in file_name:
+                results = bq.run_template_query("cwer_rber_hrer.sql", context)
+            else:
+                results = bq.run_template_query("rwb.sql", context)
             
             output_path = os.path.join(config.user_input_config["output_path"], file_name)
-            # bq.save_to_csv(results, output_path)
+            bq.save_to_csv(results, output_path)
             df = pd.read_csv(output_path, keep_default_na=False, low_memory=False)
 
             #Decode cycle group
@@ -610,14 +612,17 @@ def process_context(entry):
 
             if "cwer" in file_name and "wl" not in file_name:
                 pass_fail_summary(df,config.user_input_config["output_path"], file_name, config.user_input_config["lut_functions"])
-                plot_cwer(df,file_name,config.user_input_config["output_path"],config.user_input_config["lut_functions"])
+                with lock:
+                    plot_cwer(df,file_name,config.user_input_config["output_path"],config.user_input_config["lut_functions"])
             
             if "cwer" in file_name and "wl" in file_name:
-                plot_cwer_wl(df,file_name,config.user_input_config["output_path"])
+                with lock:
+                    plot_cwer_wl(df,file_name,config.user_input_config["output_path"])
             
             if "rwb" in file_name:
                 rwb_summary(df,config.user_input_config["output_path"],file_name)
-                plot_rwb_wrapper(df,file_name,config.user_input_config["output_path"])
+                with lock:
+                    plot_rwb_wrapper(df,file_name,config.user_input_config["output_path"])
             
             logging.info(f"Saved: {file_name}")
         except Exception as e:
@@ -625,29 +630,20 @@ def process_context(entry):
 
 # Combine all context entries
 all_contexts = context_list_avg_cwer + context_list_avg_cwer_rber_wl + context_rwb
+random.shuffle(all_contexts)
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
+lock = threading.Lock()
 
-MAX_WORKERS = 10  # Adjust based on your system's capacity
+# Create and start threads
+threads = []
+for entry in all_contexts:
+    thread = threading.Thread(target=process_context, args=(entry,lock))
+    thread.start()
+    threads.append(thread)
 
-with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-    futures = [executor.submit(process_context, entry) for entry in all_contexts]
-    for future in as_completed(futures):
-        try:
-            future.result()
-        except Exception as e:
-            logging.error(f"Thread failed: {e}")
-
-# # Create and start threads
-# threads = []
-# for entry in all_contexts:
-#     thread = threading.Thread(target=process_context, args=(entry,))
-#     thread.start()
-#     threads.append(thread)
-
-# # Wait for all threads to complete
-# for thread in threads:
-#     thread.join()
+# Wait for all threads to complete
+for thread in threads:
+    thread.join()
 
 if "rwb_summary_final.csv" not in os.listdir(config.user_input_config["output_path"]) and os.path.exists(f"""{config.user_input_config["output_path"]}\\rwb_summary"""):
     concat_rwb_summaries(config.user_input_config["output_path"])
